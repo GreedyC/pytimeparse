@@ -21,14 +21,20 @@ jobs:
           python-version: ${{ matrix.python }}
       - run: python -m unittest discover
       - run: python -m doctest pytimeparse/timeparse.py
-  legacy-python:
+  legacy-audit:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
         with:
           persist-credentials: false
-      - name: Test Python 2.7
-        run: docker run --rm -v "$PWD:/src:ro" -w /src python:2.7.18 python -m unittest discover
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          repository: wroberts/pytimeparse
+          ref: 319ff0dda9563dacb274fae7ced33111e55cd127
+          path: baseline
+          persist-credentials: false
+      - name: Verify known baseline import blocker and parser-only Python 2.7 behavior
+        run: docker run --rm -v "$PWD:/src:ro" -w /src python:2.7.18 python .github/legacy-audit.py
   build:
     runs-on: ubuntu-latest
     steps:
